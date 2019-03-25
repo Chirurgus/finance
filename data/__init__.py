@@ -10,19 +10,16 @@ import iexfinance as iex
 
 NUM_ASSETS = 100
 
-def get_stock_history():
+def symbols():
     symbols_all = iex.refdata.get_symbols()
+    return([ s['symbol'] for s in symbols_all])
 
-    # Il en a 8721 en tout
-    num_assets = min(NUM_ASSETS, len(symbols_all))
-
-    symbols_sample = [ s['symbol'] for s in sample(symbols_all, num_assets) ]
-
+def stock_history(symbols):
     # 5 years of data
     start_date = datetime(2014, 3, 23)
     end_date = datetime(2019, 3, 23)
     price_history_multicol = iex.stocks.get_historical_data(
-                                            symbols_sample,
+                                            symbols,
                                             start_date,
                                             end_date,
                                             output_format='pandas'
@@ -31,7 +28,7 @@ def get_stock_history():
     price_history_multicol.reset_index(inplace=True)
 
     price_history_flat = pd.DataFrame()
-    for symbol in symbols_sample:
+    for symbol in symbols:
         df = pd.concat(
             [ price_history_multicol[col] for col in [symbol, 'date'] ],
             axis=1
@@ -41,8 +38,4 @@ def get_stock_history():
     
     return(price_history_flat)
 
-__all__ =  ['get_stock_history']
-
-if __name__ == "__main__":
-    x = get_stock_history()
-    x.isnull.sum()[0]
+__all__ =  ['symbols', 'stock_history']

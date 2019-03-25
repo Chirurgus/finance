@@ -3,7 +3,8 @@
 
 library(reticulate)
 api <- import("data")
-prices <- api$get_stock_history()
+stocks <- sample(api.symbols(), 100)
+prices <- api$stock_history(stocks)
 prices$symbol <- factor(prices$symbol)
 prices$date <- as.POSIXct(prices$date)
 
