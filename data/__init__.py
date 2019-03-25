@@ -2,40 +2,12 @@
 """ On 24/03/2019 """
 
 from random import sample
-from datetime import datetime
 
-import pandas as pd 
+from .api import symbols, stock_history
 
-import iexfinance as iex
-
-NUM_ASSETS = 100
-
-def symbols():
-    symbols_all = iex.refdata.get_symbols()
-    return([ s['symbol'] for s in symbols_all])
-
-def stock_history(symbols):
-    # 5 years of data
-    start_date = datetime(2014, 3, 23)
-    end_date = datetime(2019, 3, 23)
-    price_history_multicol = iex.stocks.get_historical_data(
-                                            symbols,
-                                            start_date,
-                                            end_date,
-                                            output_format='pandas'
-                                            )
-    # makes date a column
-    price_history_multicol.reset_index(inplace=True)
-
-    price_history_flat = pd.DataFrame()
-    for symbol in symbols:
-        df = pd.concat(
-            [ price_history_multicol[col] for col in [symbol, 'date'] ],
-            axis=1
-            )
-        df['symbol'] = symbol
-        price_history_flat = price_history_flat.append(df)
-    
-    return(price_history_flat)
+# Helper functions so that we don't need to make multiple calls form R
+def get_stock_history_sample(num_stocks):
+    all_symbols = symbols()
+    return(stock_history(sample(all_symbols, num_stocks)))
 
 __all__ =  ['symbols', 'stock_history']
